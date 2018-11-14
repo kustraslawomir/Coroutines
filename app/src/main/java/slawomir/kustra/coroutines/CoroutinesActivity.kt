@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import slawomir.kustra.coroutines.repository.RetrofitFactory
 import slawomir.kustra.coroutines.utils.logger.LoggerIml
 
 class CoroutinesActivity : AppCompatActivity() {
@@ -14,8 +15,18 @@ class CoroutinesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         changeTextViewOnMainThread()
+
+        val service = RetrofitFactory.makeRetrofitService()
+
+        GlobalScope.launch(Dispatchers.Main) {
+            val request = service.getPosts()
+            val response = request.await()
+            if(response.isSuccessful)
+                logger.log("successfully fetched response")
+            else logger.log("fetch error")
+        }
     }
-    
+
     /*
      Launches setTextAfterDelay method at main thread
      */
