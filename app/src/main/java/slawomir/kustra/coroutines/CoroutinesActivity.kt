@@ -1,25 +1,41 @@
 package slawomir.kustra.coroutines
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Patterns
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import slawomir.kustra.coroutines.utils.logger.Logger
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import slawomir.kustra.coroutines.utils.logger.LoggerIml
 
 class CoroutinesActivity : AppCompatActivity() {
 
-    private val tag = "COROUTINES"
     private val logger = LoggerIml()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        changeTextViewOnMainThread()
+    }
+    
+    /*
+     Launches setTextAfterDelay method at main thread
+     */
+    private fun changeTextViewOnMainThread() {
+        GlobalScope.launch(Dispatchers.Main) {
+            setTextAfterDelay()
+        }
     }
 
+    private suspend fun setTextAfterDelay() {
+        logger.log("setTextAfterDelay before delay" + getCurrentThread())
+        delay(2000L)
+        setHelloMessageOnUiThread()
+    }
 
-    private fun getCurrentThread() = Thread.currentThread()
+    private fun setHelloMessageOnUiThread() {
+        logger.log("setTextAfterDelay after delay" + getCurrentThread())
+        helloMessageTextView.text = getString(R.string.hello_message)
+    }
+
+    private fun getCurrentThread() = Thread.currentThread().toString()
 
 }
